@@ -75,10 +75,11 @@ protocol_mode = aioble.Characteristic(
 aioble.register_services(service)
 
 _ble = bluetooth.BLE()
+_ble.active(True)
 
 
-async def _patched_pair(connection, bond=True, mitm=False, io=0, timeout_ms=20000):
-    _ble.config(bond=bond, mitm=mitm, io=io)
+async def _patched_pair(connection, bond=False, mitm=False, io=2, timeout_ms=20000):
+    _ble.config(addr_mode=0x00, le_secure=False)
     import asyncio
 
     connection._pair_event = asyncio.ThreadSafeFlag()
@@ -121,7 +122,7 @@ async def main():
         led.off()
         print("Connected:", connection)
         # try:
-        await connection.pair(bond=True)
+        await connection.pair()
         # except Exception as e:
         # print("Pairing failed:", e)
         # continue
@@ -134,5 +135,6 @@ async def main():
                     await send_pause(connection)
         except Exception as e:
             print("Connection error:", e)
+
 
 asyncio.run(main())
